@@ -15,7 +15,7 @@ SHOW_CMD = "whoami"  # trigger for show stats command
 CURRENCY_LIST = ["BTC", "ETH", "ETC"]  # list of available currencies
 START_MONEY = 10000.00
 # URL for the CryptoCompare REST API
-API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&tsyms=USD'
+API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=USD,BTC,ETH,ETC&tsyms=USD,BTC,ETH,ETC'
 
 user_list = []
 
@@ -75,7 +75,7 @@ def handle_command(command, channel, user):
         if len(cmd_list) != 1:
             response = "Error, command in the wrong format"
         else:
-            response  = show_user(user)
+            response = show_user(user)
     # else command not recognised
     else:
         response = "Command not recognised."
@@ -94,42 +94,37 @@ def get_list():
     return json.loads(resp.content)
 
 
-# function to purchase cryprocurrency with USD
-def buy(user, currency, quantity):
+# function to exchange two currencies
+def transaction(user, fromCurrency, toCurrency, quantity):
     rates = get_list()
     try:
-        price = rates[currency]['USD'] * quantity
+        price = rates[fromCurrency][toCurrency] * quantity
     except KeyError:
         return False
 
-    if int(user.currencies['USD']) >= price:
-        user.currencies['USD'] -= price
-        user.currencies[currency] += quantity
-        return "Transaction Success: Bought " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
+    if int(user.currencies[fromCurrency]) >= price:
+        user.currencies[fromCurrency] -= price
+        user.currencies[toCurrency] += quantity
+        return "Transaction Success: Bought " + str(quantity) + " " + str(toCurrency) + " for " + str(
+            price) + fromCurrency
     else:
         return "Transaction Failed: Not enough money"
 
 
+# function to purchase cryprocurrency with USD
+def buy(user, currency, quantity):
+    return transaction(user, 'USD', currency, quantity)
+
+
 # function to sell cryptocurrency for USD
 def sell(user, currency, quantity):
-    rates = get_list()
-    try:
-        price = int(rates[currency]['USD']) * int(quantity)
-
-    except KeyError:
-        print("here")
-        return False
-
-    if user.currencies[currency] >= quantity:
-        user.currencies[currency] = user.currencies[currency] - quantity
-        user.currencies['USD'] += price
-        return "Transaction Success: Sold " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
-    else:
-        return "Transaction Failed: not enough currency"
+    return transaction(user, currency, 'USD', quantity)
 
 
 def show_user(user):
-    response = ("Your stats:\nMoney: " + str(user.currencies['USD']) + "\nBitcoin: " + str(user.currencies['BTC']) + "\nEthereum: " + str(user.currencies ['ETH']) + "\n Ethereum Classic: " + str(user.currencies['ETC']))
+    response = ("Your stats:\nMoney: " + str(user.currencies['USD']) + "\nBitcoin: " + str(
+        user.currencies['BTC']) + "\nEthereum: " + str(user.currencies['ETH']) + "\n Ethereum Classic: " + str(
+        user.currencies['ETC']))
     return response
 
 
@@ -149,7 +144,6 @@ def is_int(string):
 
 # get user object, or create a new one if not found
 def get_user(user_id):
-
     # find user in user list
     for user in user_list:
         if user.currencies['ID'] == user_id:
