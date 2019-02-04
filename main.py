@@ -119,27 +119,46 @@ def get_prices():
 def transaction(user, fromCurrency, toCurrency, quantity):
     rates = get_list()
     try:
-        price = rates[fromCurrency][toCurrency] * quantity
+        price = rates[toCurrency][fromCurrency] * quantity
     except KeyError:
-        return False
+        return "Transaction Failed"
 
     if int(user.currencies[fromCurrency]) >= price:
         user.currencies[fromCurrency] -= price
         user.currencies[toCurrency] += quantity
-        return "Transaction Success: Bought " + str(quantity) + " " + str(toCurrency) + " for " + str(
-            price) + fromCurrency
+        return "Transaction Success"
     else:
-        return "Transaction Failed: Not enough money"
+        return "Transaction Failed"
 
 
 # function to purchase cryprocurrency with USD
 def buy(user, currency, quantity):
-    return transaction(user, 'USD', currency, quantity)
+    rates = get_list()
+    try:
+        price = rates[currency]['USD'] * quantity
+    except KeyError:
+        return False
+    if int(user.currencies['USD']) >= price:
+        user.currencies['USD'] -= price
+        user.currencies[currency] += quantity
+        return "Transaction Success: Bought " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
+    else:
+        return "Transaction Failed: Not enough money"
 
 
-# function to sell cryptocurrency for USD
 def sell(user, currency, quantity):
-    return transaction(user, currency, 'USD', quantity)
+    rates = get_list()
+    try:
+        price = int(rates[currency]['USD']) * int(quantity)
+    except KeyError:
+        print("here")
+        return False
+    if user.currencies[currency] >= quantity:
+        user.currencies[currency] = user.currencies[currency] - quantity
+        user.currencies['USD'] += price
+        return "Transaction Success: Sold " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
+    else:
+        return "Transaction Failed: not enough currency"
 
 
 def show_user(user):
