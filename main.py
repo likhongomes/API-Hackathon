@@ -16,6 +16,7 @@ CURRENCY_LIST = ["btc", "eth", "etc"] # list of available currencies
 # URL for the CryptoCompare REST API
 API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&tsyms=USD'
 
+user_list = []
 
 # Parses the events pulled from slack, and returns messages sent to the bot
 def parse_command(slack_events):
@@ -117,7 +118,7 @@ def sell(user, currency, quantity):
 
 # User class holds user info
 class Users:
-    currencies = {'USD': 0, 'BTC': 0, 'ETH': 0, 'ETC': 0}
+    currencies = {'ID': 0, 'USD': 0, 'BTC': 0, 'ETH': 0, 'ETC': 0}
 
 
 # detects if string is an int
