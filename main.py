@@ -10,6 +10,7 @@ READ_DELAY = 1 # 1 second  between reading from RTM
 BUY_CMD = "buy" # trigger for buy command
 SELL_CMD = "sell" # trigger for sell command
 SHOW_CMD = "whoami" # trigger for show stats command
+CURRENCY_LIST = ["btc", "eth", "etc"] # list of available currencies
 # URL for the CryptoCompare REST API
 API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&tsyms=USD'
 
@@ -18,28 +19,52 @@ API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&t
 def parse_command(slack_events):
     # search all new events
     for event in slack_events:
+        # get all new messages
         if event["type"] == "message" and not "subtype" in event:
-            handle_command(event["text"], event["channel"], event["user"])
+            # get user
+            user = get_user(event["user"])
+            handle_command(event["text"], event["channel"], user)
     else:
         return None, None
 
 
 # Handles all slack commands
 def handle_command(command, channel, user):
-    # default response in case of errors
-    default_response = "Error, please tyt the buy, sell, or whoami command"
-
     # split up command into a list
     cmd_list = command.split(" ")
-
     # if buy command
     if command.startswith(BUY_CMD):
+        # if incorrect number of arguments
         if len(cmd_list) != 3:
+            # response is an error
             response = "Error, command in the wrong format"
+        # if using an invalid currency
+        elif cmd_list[1].lower() not in CURRENCY_LIST:
+            # response is an error
+            response = "Error, invalid currency"
+        # if provided qty is not an int
+        elif not is_int(cmd_list[2]):
+            response = "Error: please enter a valid integer"
+        # else everything is good
+        else:
+            response = buy(user, cmd_list[1].lower(), int(cmd_list[2]))
     # if sell command
     elif command.startswith(SELL_CMD):
+        # if incorrect number of arguments
         if len(cmd_list) != 3:
+            # response is an error
             response = "Error, command in the wrong format"
+        # if using an invalid currency
+        elif cmd_list[1].lower() not in CURRENCY_LIST:
+            # response is an error
+            response = "Error, invalid currency"
+        # if provided qty is not an int
+        elif not is_int(cmd_list[2]):
+            response = "Error: please enter a valid integer"
+        # else everything is good
+        else:
+            response = sell(user, cmd_list[1].lower(), int(cmd_list[2]))
+
     # else show command
     elif command.startswith(SHOW_CMD):
         if len(cmd_list) != 1:
@@ -52,7 +77,7 @@ def handle_command(command, channel, user):
     slack_client.api_call(
         "chat.postMessage",
         channel=channel,
-        text=response or default_response
+        text=response
     )
 
 
@@ -63,12 +88,12 @@ def get_list():
 
 
 # function to purchase cryprocurrency with USD
-def buy(user):
+def buy(user, curreny, qty):
     return
 
 
 # function to sell cryptocurrency for USD
-def sell(user):
+def sell(user, curreny, qty):
     return
 
 
@@ -78,6 +103,20 @@ class Users:
     btc = 0
     eth = 0
     etc = 0
+
+
+# detects if string is an int
+def is_int(string):
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
+
+
+# get user object, or create a new one if not found
+def get_user(user_id):
+    print(")_")
 
 
 if __name__ == "__main__":
