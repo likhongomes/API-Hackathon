@@ -25,13 +25,6 @@ def parse_command(slack_events):
     else:
         return None, None
 
-# starting point for the program
-def main():
-    user = Users()
-    user.currencies['USD'] = 1000000
-    buy(user, 'BTC', 2)
-    print(user.currencies)
-
 # Handles all slack commands
 def handle_command(command, channel, user):
     # default response in case of errors
