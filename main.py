@@ -3,6 +3,8 @@ import requests
 # Used for interacting with Slack's bot API
 from slackclient import SlackClient
 # Used to work with json files
+import json
+
 import time
 
 # Constants
@@ -84,25 +86,38 @@ def handle_command(command, channel, user):
 # Get a list of crypto currency values from the CryptoCompare API
 def get_list():
     resp = requests.get(API_URL)
-    return resp.content
+    return json.loads(resp.content)
 
 
 # function to purchase cryprocurrency with USD
-def buy(user, curreny, qty):
-    return
+def buy(user, currency, quantity):
+    rates = get_list()
+    try:
+        price = rates[currency]['USD'] * quantity
+    except KeyError:
+        return False
+
+    if user.currencies['USD'] >= price:
+        user.currencies['USD'] -= price
+        user.currencies[currency] += quantity
 
 
 # function to sell cryptocurrency for USD
-def sell(user, curreny, qty):
-    return
+def sell(user, currency, quantity):
+    rates = get_list()
+    try:
+        price = rates[currency]['USD'] * quantity
+    except KeyError:
+        return False
+
+    if user.currencies[currency] >= quantity:
+        user.currencies[currency] -= quantity
+        user.currencies['USD'] += price
 
 
 # User class holds user info
 class Users:
-    money = 0
-    btc = 0
-    eth = 0
-    etc = 0
+    currencies = {'USD': 0, 'BTC': 0, 'ETH': 0, 'ETC': 0}
 
 
 # detects if string is an int
