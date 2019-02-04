@@ -148,7 +148,7 @@ def get_user(user_id):
 
 if __name__ == "__main__":
     # sign in with API key
-    slack_client = SlackClient("xoxb-540913915652-540968828227-3eScQTGsNGIVjTCtMd6tqgYo")
+    slack_client = SlackClient("xoxb-537411523905-542677057095-l51RA4E44X8n2mokdBnPo8QS")
     # if connected
     if slack_client.rtm_connect(with_team_state=False):
         print("Successfully connected, listening for events")
