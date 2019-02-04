@@ -13,6 +13,7 @@ BUY_CMD = "buy"  # trigger for buy command
 SELL_CMD = "sell"  # trigger for sell command
 SHOW_CMD = "whoami"  # trigger for show stats command
 CURRENCY_LIST = ["BTC", "ETH", "ETC"]  # list of available currencies
+START_MONEY = 10000.00
 # URL for the CryptoCompare REST API
 API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&tsyms=USD'
 
@@ -104,6 +105,9 @@ def buy(user, currency, quantity):
     if int(user.currencies['USD']) >= price:
         user.currencies['USD'] -= price
         user.currencies[currency] += quantity
+        return "Transaction Success: Bought " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
+    else:
+        return "Transaction Failed: Not enough money"
 
 
 # function to sell cryptocurrency for USD
@@ -119,7 +123,9 @@ def sell(user, currency, quantity):
     if user.currencies[currency] >= quantity:
         user.currencies[currency] = user.currencies[currency] - quantity
         user.currencies['USD'] += price
-        return "Transaction Sucess: Bought " + str(quantity) + " " + str(currency)
+        return "Transaction Success: Sold " + str(quantity) + " " + str(currency) + " for " + str(price) + "$"
+    else:
+        return "Transaction Failed: not enough currency"
 
 
 def show_user(user):
@@ -129,7 +135,7 @@ def show_user(user):
 
 # User class holds user info
 class Users:
-    currencies = {'ID': 0, 'USD': 0, 'BTC': 0, 'ETH': 0, 'ETC': 0}
+    currencies = {'ID': "", 'USD': 0.0, 'BTC': 0, 'ETH': 0, 'ETC': 0}
 
 
 # detects if string is an int
@@ -143,7 +149,19 @@ def is_int(string):
 
 # get user object, or create a new one if not found
 def get_user(user_id):
-    return
+
+    # find user in user list
+    for user in user_list:
+        if user.currencies['ID'] == user_id:
+            return user
+
+    # else no user found
+    user = Users()
+    user.currencies['ID'] = user_id
+    user.currencies['USD'] = START_MONEY
+    user_list.append(user)
+
+    return user
 
 
 if __name__ == "__main__":
