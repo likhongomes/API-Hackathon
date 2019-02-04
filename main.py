@@ -12,6 +12,7 @@ READ_DELAY = 1  # 1 second  between reading from RTM
 BUY_CMD = "buy"  # trigger for buy command
 SELL_CMD = "sell"  # trigger for sell command
 SHOW_CMD = "whoami"  # trigger for show stats command
+SHOW_PRICES_CMD = "rates"   # trigger for show prices command
 CURRENCY_LIST = ["BTC", "ETH", "ETC"]  # list of available currencies
 START_MONEY = 10000.00
 # URL for the CryptoCompare REST API
@@ -76,6 +77,11 @@ def handle_command(command, channel, user):
             response = "Error, command in the wrong format"
         else:
             response = show_user(user)
+    elif command.startswith(SHOW_PRICES_CMD):
+        if len(cmd_list) != 1:
+            response = "Error, command in the wrong format"
+        else:
+            response = get_prices()
     # else command not recognised
     else:
         response = "Command not recognised."
@@ -92,6 +98,15 @@ def handle_command(command, channel, user):
 def get_list():
     resp = requests.get(API_URL)
     return json.loads(resp.content)
+
+
+# Return a formatted string with the crytocurrencies' prices.
+def get_prices():
+    rates = get_list()
+    prices = []
+    for currency in CURRENCY_LIST:
+        prices.append('{}: ${}'.format(currency, rates[currency]['USD']))
+    return '\n'.join(prices)
 
 
 # function to exchange two currencies
