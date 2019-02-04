@@ -2,6 +2,8 @@
 import requests
 # Used for interacting with Slack's bot API
 from slackclient import SlackClient
+# Used to store API key
+import config
 # Used to work with json files
 import json
 import time
@@ -182,7 +184,7 @@ def get_user(user_id):
 
 if __name__ == "__main__":
     # sign in with API key
-    slack_client = SlackClient("xoxb-537411523905-542677057095-l51RA4E44X8n2mokdBnPo8QS")
+    slack_client = SlackClient(config.API_KEY)
     # if connected
     if slack_client.rtm_connect(with_team_state=False):
         print("Successfully connected, listening for events")
