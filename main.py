@@ -4,8 +4,15 @@ import requests
 from slackclient import SlackClient
 # Used to work with json files
 import json
-
 import time
+
+# Team 1 CIS4360 Microservice Architecture
+# Likhon Gomes, Darrin McAdams, Kouassi Tchokoto,
+# Sage Vega, Binh Nguyen, Cameron Zach
+# Project API Hackathon using Slack & CryptoCompare API
+
+
+
 
 # Constants
 READ_DELAY = 1  # 1 second  between reading from RTM
