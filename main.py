@@ -8,15 +8,16 @@ import json
 import time
 
 # Constants
-READ_DELAY = 1 # 1 second  between reading from RTM
-BUY_CMD = "buy" # trigger for buy command
-SELL_CMD = "sell" # trigger for sell command
-SHOW_CMD = "whoami" # trigger for show stats command
-CURRENCY_LIST = ["btc", "eth", "etc"] # list of available currencies
+READ_DELAY = 1  # 1 second  between reading from RTM
+BUY_CMD = "buy"  # trigger for buy command
+SELL_CMD = "sell"  # trigger for sell command
+SHOW_CMD = "whoami"  # trigger for show stats command
+CURRENCY_LIST = ["BTC", "ETH", "ETC"]  # list of available currencies
 # URL for the CryptoCompare REST API
 API_URL = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,ETC&tsyms=USD'
 
 user_list = []
+
 
 # Parses the events pulled from slack, and returns messages sent to the bot
 def parse_command(slack_events):
@@ -42,7 +43,7 @@ def handle_command(command, channel, user):
             # response is an error
             response = "Error, command in the wrong format"
         # if using an invalid currency
-        elif cmd_list[1].lower() not in CURRENCY_LIST:
+        elif cmd_list[1].upper() not in CURRENCY_LIST:
             # response is an error
             response = "Error, invalid currency"
         # if provided qty is not an int
@@ -50,7 +51,7 @@ def handle_command(command, channel, user):
             response = "Error: please enter a valid integer"
         # else everything is good
         else:
-            response = buy(user, cmd_list[1].lower(), int(cmd_list[2]))
+            response = buy(user, cmd_list[1].upper(), int(cmd_list[2]))
     # if sell command
     elif command.startswith(SELL_CMD):
         # if incorrect number of arguments
@@ -58,7 +59,7 @@ def handle_command(command, channel, user):
             # response is an error
             response = "Error, command in the wrong format"
         # if using an invalid currency
-        elif cmd_list[1].lower() not in CURRENCY_LIST:
+        elif cmd_list[1].upper() not in CURRENCY_LIST:
             # response is an error
             response = "Error, invalid currency"
         # if provided qty is not an int
@@ -66,12 +67,14 @@ def handle_command(command, channel, user):
             response = "Error: please enter a valid integer"
         # else everything is good
         else:
-            response = sell(user, cmd_list[1].lower(), int(cmd_list[2]))
+            response = sell(user, cmd_list[1].upper(), int(cmd_list[2]))
 
     # else show command
     elif command.startswith(SHOW_CMD):
         if len(cmd_list) != 1:
             response = "Error, command in the wrong format"
+        else:
+            response  = show_user(user)
     # else command not recognised
     else:
         response = "Command not recognised."
@@ -98,7 +101,7 @@ def buy(user, currency, quantity):
     except KeyError:
         return False
 
-    if user.currencies['USD'] >= price:
+    if int(user.currencies['USD']) >= price:
         user.currencies['USD'] -= price
         user.currencies[currency] += quantity
 
@@ -107,13 +110,21 @@ def buy(user, currency, quantity):
 def sell(user, currency, quantity):
     rates = get_list()
     try:
-        price = rates[currency]['USD'] * quantity
+        price = int(rates[currency]['USD']) * int(quantity)
+
     except KeyError:
+        print("here")
         return False
 
     if user.currencies[currency] >= quantity:
-        user.currencies[currency] -= quantity
+        user.currencies[currency] = user.currencies[currency] - quantity
         user.currencies['USD'] += price
+        return "Transaction Sucess: Bought " + str(quantity) + " " + str(currency)
+
+
+def show_user(user):
+    response = ("Your stats:\nMoney: " + str(user.currencies['USD']) + "\nBitcoin: " + str(user.currencies['BTC']) + "\nEthereum: " + str(user.currencies ['ETH']) + "\n Ethereum Classic: " + str(user.currencies['ETC']))
+    return response
 
 
 # User class holds user info
@@ -137,7 +148,7 @@ def get_user(user_id):
 
 if __name__ == "__main__":
     # sign in with API key
-    slack_client = SlackClient("xoxb-537411523905-542677057095-l51RA4E44X8n2mokdBnPo8QS")
+    slack_client = SlackClient("xoxb-540913915652-540968828227-3eScQTGsNGIVjTCtMd6tqgYo")
     # if connected
     if slack_client.rtm_connect(with_team_state=False):
         print("Successfully connected, listening for events")
