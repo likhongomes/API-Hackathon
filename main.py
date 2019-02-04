@@ -13,9 +13,6 @@ import time
 # Sage Vega, Binh Nguyen, Cameron Zach
 # Project API Hackathon using Slack & CryptoCompare API
 
-
-
-
 # Constants
 READ_DELAY = 1  # 1 second  between reading from RTM
 BUY_CMD = "buy"  # trigger for buy command
